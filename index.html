@@ -22,28 +22,34 @@
     </div>
 
     <script>
-        async function loadSalesData() {
-            const response = await fetch('data.csv');
-            const data = await response.text();
-            const rows = data.split('\n').slice(1); // Skip header row
-            let totalSales = 0;
+        document.addEventListener('DOMContentLoaded', () => {
+            async function loadSalesData() {
+                try {
+                    const response = await fetch('data.csv');
+                    const data = await response.text();
+                    const rows = data.split('\n').slice(1); // Skip header row
+                    let totalSales = 0;
 
-            rows.forEach(row => {
-                const [product, sales] = row.split(',');
-                if (product && sales) {
-                    const salesValue = parseFloat(sales);
-                    totalSales += salesValue;
+                    rows.forEach(row => {
+                        const [product, sales] = row.split(',').map(item => item.trim());
+                        const salesValue = parseFloat(sales);
+                        if (product && !isNaN(salesValue)) {
+                            totalSales += salesValue;
 
-                    const tableRow = document.createElement('tr');
-                    tableRow.innerHTML = `<td>${product}</td><td>${salesValue}</td>`;
-                    document.querySelector('#product-sales tbody').appendChild(tableRow);
+                            const tableRow = document.createElement('tr');
+                            tableRow.innerHTML = `<td>${product}</td><td>${salesValue.toFixed(2)}</td>`;
+                            document.querySelector('#product-sales tbody').appendChild(tableRow);
+                        }
+                    });
+
+                    document.getElementById('total-sales').textContent = totalSales.toFixed(2);
+                } catch (error) {
+                    console.error('Error fetching sales data:', error);
                 }
-            });
+            }
 
-            document.getElementById('total-sales').textContent = totalSales.toFixed(2);
-        }
-
-        loadSalesData();
+            loadSalesData();
+        });
     </script>
 </body>
 </html>
